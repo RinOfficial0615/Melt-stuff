@@ -1,0 +1,28 @@
+name: Melt Kernel CI
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_version:
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run build script
+        run: ./build.sh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LOCALVERSION: ${{ inputs.release_version }}
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Melt-marble-${{ inputs.release_version }}-multi
+          path: Melt-marble-${{ inputs.release_version }}-multi.zip
+          compression-level: 0
+    

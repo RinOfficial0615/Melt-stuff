@@ -11,8 +11,8 @@ cd ${0%/*}
 
 DEFCONFIG=marble_defconfig
 IMAGE=./out/arch/arm64/boot/Image
-OUTPUT_DIR=./../Melt_marble_release
-GKI_BUILD_TOOLS=/home/pzqqt/build_toolchain/android-kernel/build
+OUTPUT_DIR=$(realpath ./../out)
+GKI_BUILD_TOOLS=PLACEHOLDER
 
 # 如果将 `KMI_STRICT_MODE` 设置为 true, 则:
 # 1. 使内核 Image 仅导出 KMI 接口 (非 KMI 接口将不会被导出, 这意味着依赖非 KMI 接口的内核模块将加载失败).
@@ -89,27 +89,21 @@ current_branch=$(git branch | grep -E '^\*' | awk '{print $2}') && {
 	esac
 }
 
-export KBUILD_BUILD_HOST="wsl2"
-export KBUILD_BUILD_USER="pzqqt"
+export KBUILD_BUILD_HOST="ci"
+export KBUILD_BUILD_USER="github-actions"
 
 # 编译内核模块只能使用 Google clang 12.0.5
-CLANG_PATH=/home/pzqqt/build_toolchain/clang-r416183b-12.0.5/bin
+CLANG_PATH=$(realpath ../clang-r416183b/bin)
 # 编译 GKI 则可用使用更先进的 clang
 if [ "$make_target" == "Image" ]; then
-	if $USE_SLIM_LLVM; then
-		echo -e "${gre}Building kernel image with Slim LLVM 20.1.3 $white"
-		CLANG_PATH=/home/pzqqt/build_toolchain/llvm-20.1.3-x86_64/bin
-	else
-#		echo -e "${gre}Building kernel image with Google clang 19.0.1 $white"
-#		CLANG_PATH=/home/pzqqt/build_toolchain/clang-r536225-19.0.1/bin
-		echo -e "${gre}Building kernel image with Google clang 20.0.0 $white"
-		CLANG_PATH=/home/pzqqt/build_toolchain/clang-r547379-20.0.0/bin
-	fi
+	echo -e "${gre}Building kernel image with qcom clang 19.0.0 $white"
+	CLANG_PATH=$(realpath ../LLVM/bin)
 fi
 
 export PATH=${CLANG_PATH}:${PATH}
 
-export LOCALVERSION=-v3.8.1
+# export LOCALVERSION=-v3.8.1
+export LOCALVERSION=-${LOCALVERSION} # LOCALVERSION is already set in kernel.yml
 $unstable_build && export LOCALVERSION="${LOCALVERSION}-unstable"
 $with_ksu && {
 	while true; do
@@ -119,6 +113,7 @@ $with_ksu && {
 	export LOCALVERSION="${LOCALVERSION}-${kversion_ksu_suffix}"
 	unset kversion_ksu_suffix
 }
+echo -e "${gre}LOCALVERSION is ${LOCALVERSION} $white"
 
 make_flags="ARCH=arm64 LLVM=1 LLVM_IAS=1 O=out"
 make_kcflags="-D__ANDROID_COMMON_KERNEL__ -O3"
@@ -142,11 +137,7 @@ $with_ksu && {
 	    -d KSU_DEBUG \
 	    -e KSU_MANUAL_HOOK
 }
-if [ "$(./scripts/config --file ./out/.config -s CFI_FORCE_SKIP_CHECK)" == "y" ]; then
-	echo -e "${yellow}Warning: CFI checks is disabled! $white"
-fi
-# Slim llvm dose not support polly
-$USE_SLIM_LLVM && ./scripts/config --file ./out/.config -d LLVM_POLLY
+./scripts/config --file ./out/.config -e CFI_FORCE_SKIP_CHECK
 
 if ${KMI_STRICT_MODE}; then
 
