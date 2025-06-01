@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 
-# From https://github.com/Pzqqt/android_kernel_xiaomi_marble/commit/b3d8323c8218653f54fc051bffe5b470f54b2b7d
+# Modified from https://github.com/Pzqqt/android_kernel_xiaomi_marble/commit/b3d8323c8218653f54fc051bffe5b470f54b2b7d
 
 yellow='\033[0;33m'
 white='\033[0m'
@@ -20,9 +20,6 @@ GKI_BUILD_TOOLS=PLACEHOLDER
 # 3. 编译完成后在 /tmp 生成 abi.xml.
 KMI_STRICT_MODE=true
 # KMI_STRICT_MODE=false
-
-USE_SLIM_LLVM=true
-# USE_SLIM_LLVM=false
 
 mkdir -p $OUTPUT_DIR
 mkdir -p ${OUTPUT_DIR}/vendor_boot_modules
@@ -105,6 +102,7 @@ export PATH=${CLANG_PATH}:${PATH}
 # export LOCALVERSION=-v3.8.1
 export LOCALVERSION=-${LOCALVERSION} # LOCALVERSION is already set in kernel.yml
 $unstable_build && export LOCALVERSION="${LOCALVERSION}-unstable"
+export LOCALVERSION="${LOCALVERSION}-$(git rev-parse --short HEAD)"
 $with_ksu && {
 	while true; do
 		kversion_ksu_suffix=$(cat /dev/urandom | tr -dc 'a-zA-Z' | head -c 3)

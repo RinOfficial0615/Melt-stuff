@@ -23,6 +23,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Melt-marble-${{ inputs.release_version }}-multi
-          path: Melt-marble-${{ inputs.release_version }}-multi.zip
+          path: out/Melt-marble-${{ inputs.release_version }}-multi.zip
           compression-level: 0
     

@@ -1,7 +1,5 @@
 #!/usr/bin/bash
 
-mv ../build_kernel.sh .
-
 echo "[*] Install dependencies"
 sudo apt-get update
 sudo apt update
@@ -27,9 +25,12 @@ echo "[*] Clone Melt repositories"
 git clone https://github.com/Pzqqt/AnyKernel3.git -b Marble-Melt out
 git clone https://github.com/Pzqqt/android_kernel_xiaomi_marble.git
 
+echo -e "\n==="
 ls -A
+echo -e "===\n"
 
 cd android_kernel_xiaomi_marble
+mv ../build_kernel.sh .
 echo "[!] Build kernel image"
 bash build_kernel.sh Image
 echo "[!] Build kernel image with ksu"
@@ -41,3 +42,4 @@ cd ..
 echo "[!] Package kernel to flashable zip"
 cd out
 python3 make_package.py
+cd ..
