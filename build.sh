@@ -32,11 +32,11 @@ echo -e "===\n"
 cd android_kernel_xiaomi_marble
 mv ../build_kernel.sh .
 echo "[!] Build kernel image"
-bash build_kernel.sh --no-kmi-strict Image
+bash build_kernel.sh --no-kmi-strict -- Image
 echo "[!] Build kernel image with ksu"
-bash build_kernel.sh --no-kmi-strict --ksu Image
+bash build_kernel.sh --no-kmi-strict --ksu -- Image
 echo "[!] Build kernel modules"
-bash build_kernel.sh --no-kmi-strict
+bash build_kernel.sh --no-kmi-strict -- modules
 cd ..
 
 echo "[!] Package kernel to flashable zip"
