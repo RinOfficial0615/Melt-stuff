@@ -1,5 +1,7 @@
 #!/usr/bin/bash
 
+RELEASE_VERSION=${LOCALVERSION}
+
 echo "[*] Install dependencies"
 sudo apt-get update
 sudo apt update
@@ -11,10 +13,11 @@ sudo apt install -y --fix-missing \
 
 pip install \
     bsdiff4 \
-    rich
+    rich \
+    lxml
 
 echo "[*] Download qcom LLVM toolchain"
-gh release download -R RinOfficial0615/Melt-stuff -p LLVM.7z
+gh release download Compilers -R RinOfficial0615/Melt-stuff -p LLVM.7z
 mkdir LLVM
 7z x LLVM.7z -o./LLVM/
 
@@ -22,8 +25,8 @@ echo "[*] Download AOSP clang r416183b"
 git clone https://github.com/LineageOS/android_prebuilts_clang_kernel_linux-x86_clang-r416183b.git clang-r416183b
 
 echo "[*] Clone Melt repositories"
-git clone https://github.com/Pzqqt/AnyKernel3.git -b Marble-Melt out
-git clone https://github.com/Pzqqt/android_kernel_xiaomi_marble.git
+git clone https://github.com/Pzqqt/AnyKernel3.git -b Marble-Melt --depth 1 out
+git clone https://github.com/Pzqqt/android_kernel_xiaomi_marble.git --depth 1
 
 echo -e "\n==="
 ls -A
@@ -41,5 +44,5 @@ cd ..
 
 echo "[!] Package kernel to flashable zip"
 cd out
-python3 make_package.py
+python3 make_package.py ${RELEASE_VERSION}
 cd ..
